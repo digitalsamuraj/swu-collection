@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { CollectionCard } from "@/types/card";
 
@@ -36,7 +37,7 @@ export function CardDetailsModal({
   };
 
   const totalOwned =
-    card.artVariants?.reduce((sum, variant) => {
+    card.artVariants?.reduce((sum) => {
       // For now, we'll assume each variant has the same owned quantity as the main card
       // In a more sophisticated implementation, we'd track quantities per variant
       return sum + card.owned;
@@ -90,10 +91,13 @@ export function CardDetailsModal({
                     >
                       <div className="flex items-center gap-3">
                         {variant.imageUrl && (
-                          <img
+                          <Image
                             src={variant.imageUrl}
                             alt={`${card.card.name} variant ${index + 1}`}
+                            width={64}
+                            height={80}
                             className="w-16 h-20 object-cover rounded border"
+                            unoptimized
                           />
                         )}
                         <div>
