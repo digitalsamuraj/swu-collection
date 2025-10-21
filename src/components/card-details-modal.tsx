@@ -36,8 +36,10 @@ export function CardDetailsModal({
     setEditingVariant(null);
   };
 
+  const variants = card.card.artVariants ?? [];
+
   const totalOwned =
-    card.artVariants?.reduce((sum) => {
+    variants.reduce((sum) => {
       // For now, we'll assume each variant has the same owned quantity as the main card
       // In a more sophisticated implementation, we'd track quantities per variant
       return sum + card.owned;
@@ -77,11 +79,11 @@ export function CardDetailsModal({
             </div>
           </div>
 
-          {card.artVariants && card.artVariants.length > 1 ? (
+          {variants.length > 1 ? (
             <div>
               <h3 className="text-lg font-semibold mb-4">Art Variants</h3>
               <div className="space-y-3">
-                {card.artVariants.map((variant, index) => {
+                {variants.map((variant, index) => {
                   const isEditing = editingVariant === variant.id;
 
                   return (
