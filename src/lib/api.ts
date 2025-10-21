@@ -1,7 +1,18 @@
 import axios from "axios";
 import { ApiCardResponse, Card, Set } from "@/types/card";
 
-const API_BASE_URL = "https://api.swu-db.com";
+type CardsApiResponse = ApiCardResponse[] | { data: ApiCardResponse[] };
+
+const isWrappedResponse = (
+  payload: CardsApiResponse
+): payload is { data: ApiCardResponse[] } => {
+  return (
+    typeof payload === "object" &&
+    payload !== null &&
+    "data" in payload &&
+    Array.isArray((payload as { data?: unknown }).data)
+  );
+};
 
 export class SWUApiService {
   private static instance: SWUApiService;
@@ -17,15 +28,19 @@ export class SWUApiService {
 
   async getCardsBySet(setCode: string): Promise<Card[]> {
     try {
-      const response = await axios.get<any>(`/api/cards/${setCode}`);
+      const response = await axios.get<CardsApiResponse>(
+        `/api/cards/${setCode}`
+      );
 
-      // The API returns an object with a 'data' property containing the array of cards
-      const cardsData: ApiCardResponse[] = response.data.data || response.data;
-
-      if (!Array.isArray(cardsData)) {
-        console.error("Unexpected API response structure:", response.data);
-        throw new Error("Unexpected API response structure");
-      }
+      const rawData = response.data;
+      const cardsData: ApiCardResponse[] = Array.isArray(rawData)
+        ? rawData
+        : isWrappedResponse(rawData)
+          ? rawData.data
+          : (() => {
+              console.error("Unexpected API response structure:", response.data);
+              throw new Error("Unexpected API response structure");
+            })();
 
       return this.transformApiResponse(cardsData);
     } catch (error) {
